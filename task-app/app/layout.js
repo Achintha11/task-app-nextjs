@@ -3,7 +3,7 @@
 import { Nunito } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/src/components/Sidebar/Sidebar";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import store from "@/src/utils/store";
 import {
   ClerkProvider,
@@ -11,8 +11,9 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
-  useUser,
 } from "@clerk/nextjs";
+import NextTopLoader from "nextjs-toploader";
+import { useUser } from "@clerk/clerk-react";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -21,12 +22,12 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en">
         <body className={nunito.className}>
-          <header>
-            <SignedOut>{/* <SignInButton /> */}</SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
+          <NextTopLoader
+            height={4}
+            color="#27AE60"
+            easing="cubic-bezier(0.53,0.21,0,1)"
+          />
+          <header></header>
           <Provider store={store}>
             <MainContent>{children}</MainContent>
           </Provider>

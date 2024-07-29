@@ -52,11 +52,40 @@ export async function GET(req) {
     return NextResponse.json({ error: "Unauthorized", status: 401 });
   }
 
-  const tasks = await prisma.task.findMany({ where: { userId } });
-  return NextResponse.json(tasks);
   try {
+    const tasks = await prisma.task.findMany({
+      where: { userId },
+      orderBy: {
+        date: "asc", // Sort by date in descending order
+      },
+    });
+    return NextResponse.json(tasks);
   } catch (error) {
     console.log("ERROR GETTING TASKS", error);
     return NextResponse.json({ status: 500 });
+  }
+}
+
+export async function PUT(req) {
+  const { userId } = auth();
+  const { isCompleted, id } = await req.json();
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized", status: 401 });
+  }
+
+  try {
+    const task = await prisma.task.update({
+      where: {
+        id,
+      },
+      data: {
+        isCompleted,
+      },
+    });
+    return NextResponse.json(task);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: "Error updating task", status: 500 });
   }
 }

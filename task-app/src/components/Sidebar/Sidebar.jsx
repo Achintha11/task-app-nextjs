@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,8 +15,14 @@ import {
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
 import Button from "./Button";
-import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-import { useClerk } from "@clerk/nextjs";
+import {
+  faSignOutAlt,
+  faArrowLeft,
+  faBars,
+} from "@fortawesome/free-solid-svg-icons";
+import { useClerk, UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/clerk-react";
+import { toggleCollapsed } from "@/src/features/navbar/navBarSlice";
 
 const menu = [
   {
@@ -47,56 +53,78 @@ const menu = [
 
 const Sidebar = () => {
   const { theme } = useSelector((store) => store.theme);
+  const { collapsed } = useSelector((store) => store.navbar);
 
   const pathname = usePathname();
   const { signOut } = useClerk();
   const router = useRouter();
+  const { isSignedIn, user, isLoaded } = useUser();
+
+  const { firstName, lastName, imageUrl } = user;
+  const dispatch = useDispatch();
 
   return (
-    <SidebarStyled theme={theme}>
-      <div className="profile">
-        <div className="profile-overlay"></div>
-        <div className="image">
-          <Image width={70} height={70} src="/avatar1.png" alt="profile" />
-        </div>
-        <h1>
-          <span>John</span>
-          <span>Doe</span>
-        </h1>
-      </div>
-      <ul className="nav-items">
-        {menu.map((item) => {
-          const link = item.link;
-          return (
-            <li
-              key={item.id}
-              className={`nav-item ${pathname === link ? "active" : ""}`}
-            >
-              <FontAwesomeIcon icon={item.icon} />
-              <Link href={link}>{item.title}</Link>
-            </li>
-          );
-        })}
-      </ul>
-      <div
-        style={{ position: "relative", margin: "1.2rem" }}
-        className="sign-out  "
-      >
-        <Button
-          name={"Sign Out"}
-          type={"submit"}
-          padding={"0.4rem 0.8rem"}
-          borderRad={"0.8rem"}
-          fw={"500"}
-          fs={"1rem"}
-          icon={<FontAwesomeIcon icon={faSignOutAlt} />}
-          click={() => {
-            signOut(() => router.push("/sign-in"));
-          }}
-          color={theme.colorGrey3}
-        />
-      </div>
-    </SidebarStyled>
+    <>
+      {isSignedIn && (
+        <SidebarStyled theme={theme} collapsed={collapsed}>
+          <button
+            className="toggle-nav"
+            onClick={() => dispatch(toggleCollapsed())}
+          >
+            {collapsed ? (
+              <FontAwesomeIcon icon={faBars} />
+            ) : (
+              <FontAwesomeIcon icon={faArrowLeft} />
+            )}
+          </button>
+          <div className="profile">
+            <div className="profile-overlay"></div>
+            <div className="image">
+              <Image width={70} height={70} src={imageUrl} alt="profile" />
+            </div>
+            <div className="user-btn">
+              <UserButton />
+            </div>
+            <h1>
+              <span>{firstName}</span>
+              <span>{lastName}</span>
+            </h1>
+          </div>
+          <ul className="nav-items">
+            {menu.map((item) => {
+              const link = item.link;
+              return (
+                <li
+                  key={item.id}
+                  className={`nav-item ${pathname === link ? "active" : ""}`}
+                >
+                  <FontAwesomeIcon icon={item.icon} />
+                  <Link href={link}>{item.title}</Link>
+                </li>
+              );
+            })}
+          </ul>
+          <div
+            style={{ position: "relative", margin: "1.2rem" }}
+            className="sign-out  "
+          >
+            <Button
+              name={"Sign Out"}
+              type={"submit"}
+              padding={"0.4rem 0.8rem"}
+              borderRad={"0.8rem"}
+              fw={"500"}
+              fs={"1rem"}
+              icon={<FontAwesomeIcon icon={faSignOutAlt} />}
+              click={() => {
+                signOut(() => router.push("/sign-in"));
+              }}
+              color={theme.colorGrey3}
+            />
+          </div>
+        </SidebarStyled>
+      )}
+    </>
   );
 };
 
@@ -113,14 +141,14 @@ const SidebarStyled = styled.nav`
 
   color: ${(props) => props.theme.colorGrey3};
 
+  transition: transform 0.5s cubic-bezier(0.53, 0.21, 0, 1);
+
   @media screen and (max-width: 768px) {
     position: fixed;
     height: calc(100vh - 2rem);
     z-index: 100;
-
-    transition: all 0.3s cubic-bezier(0.53, 0.21, 0, 1);
     transform: ${(props) =>
-      props.collapsed ? "translateX(-107%)" : "translateX(0)"};
+      props.collapsed ? "translateX(-105%)" : "translateX(0)"};
 
     .toggle-nav {
       display: block !important;
@@ -144,25 +172,26 @@ const SidebarStyled = styled.nav`
   }
 
   .user-btn {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
     .cl-rootBox {
       width: 100%;
       height: 100%;
 
-      .cl-userButtonBox {
+      .cl-userButtonTrigger {
         width: 100%;
         height: 100%;
-
-        .cl-userButtonTrigger {
-          width: 100%;
-          height: 100%;
-          opacity: 0;
-        }
+        opacity: 0;
       }
     }
   }
 
   .profile {
-    margin: 1.5rem;
+    margin: 1rem;
     padding: 1rem 0.8rem;
     position: relative;
 
@@ -187,15 +216,12 @@ const SidebarStyled = styled.nav`
       transition: all 0.55s linear;
       border-radius: 1rem;
       border: 2px solid ${(props) => props.theme.borderColor2};
-
       opacity: 0.2;
     }
 
     h1 {
-      font-size: 1.2rem;
       display: flex;
       flex-direction: column;
-
       line-height: 1.4rem;
     }
 
