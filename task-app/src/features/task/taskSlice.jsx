@@ -17,6 +17,43 @@ export const getAllTasks = createAsyncThunk("tasks/getAllTasks", async () => {
   }
 });
 
+export const deleteTask = createAsyncThunk(
+  "tasks/deleteTask",
+  async (id, { dispatch }) => {
+    try {
+      await axios.delete(`/api/tasks/${id}`);
+      dispatch(getAllTasks());
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+export const updateTask = createAsyncThunk(
+  "tasks/updateTask",
+  async ({ id, isCompleted }, { dispatch }) => {
+    try {
+      await axios.put("/api/tasks", { isCompleted, id });
+      dispatch(getAllTasks());
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const addTask = createAsyncThunk(
+  "task/addtask",
+  async ({ task }, { dispatch }) => {
+    try {
+      const response = await axios.post("/api/tasks", task);
+      dispatch(getAllTasks());
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 // Task slice
 const taskSlice = createSlice({
   name: "task",

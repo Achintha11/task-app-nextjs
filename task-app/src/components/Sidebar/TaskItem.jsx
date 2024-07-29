@@ -1,15 +1,17 @@
 "use client";
 
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { deleteTask, updateTask } from "@/src/features/task/taskSlice";
 
 const TaskItem = ({ task }) => {
-  const { title, date, description, isCompleted, isImportant } = task;
+  const { title, date, description, isCompleted, isImportant, id } = task;
   const { theme } = useSelector((store) => store.theme);
+  const dispatch = useDispatch();
   return (
     <TaskItemStyled theme={theme}>
       <h1>{title}</h1>
@@ -19,28 +21,14 @@ const TaskItem = ({ task }) => {
         {isCompleted ? (
           <button
             className="completed"
-            // onClick={() => {
-            //   const task = {
-            //     id,
-            //     isCompleted: !isCompleted,
-            //   };
-
-            //   updateTask(task);
-            // }}
+            onClick={() => dispatch(updateTask({ id, isCompleted: false }))}
           >
             Completed
           </button>
         ) : (
           <button
             className="incomplete"
-            // onClick={() => {
-            //   const task = {
-            //     id,
-            //     isCompleted: !isCompleted,
-            //   };
-
-            //   updateTask(task);
-            // }}
+            onClick={() => dispatch(updateTask({ id, isCompleted: true }))}
           >
             Incomplete
           </button>
@@ -50,9 +38,7 @@ const TaskItem = ({ task }) => {
         </button>
         <button
           className="delete"
-          //   onClick={() => {
-          //     deleteTask(id);
-          //   }}
+          onClick={() => dispatch(deleteTask(task.id))}
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>

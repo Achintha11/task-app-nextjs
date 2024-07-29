@@ -6,33 +6,37 @@ import TaskItem from "./TaskItem";
 import { getAllTasks } from "@/src/features/task/taskSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { useUser } from "@clerk/clerk-react";
+import CreateContent from "../Modals/CreateContent";
+import Modal from "./Modal";
+import { openModal } from "@/src/features/modal/modalSlice";
 
-const Tasks = ({ title }) => {
-  const { tasks } = useSelector((store) => store.tasks);
+const Tasks = ({ title, tasks }) => {
   const { theme } = useSelector((store) => store.theme);
+  const { modalOpen } = useSelector((store) => store.modal);
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(getAllTasks());
-  }, [dispatch]);
-
-  console.log(tasks);
+  const { isSignedIn } = useUser();
 
   return (
-    <TaskStyled theme={theme}>
-      <h1>{title}</h1>
-      {tasks && tasks.length > 0 ? (
-        <div className="tasks grid">
-          {tasks.map((task) => (
-            <TaskItem key={task.id} task={task} />
-          ))}
-          <div className="create-task">
-            <FontAwesomeIcon icon={faPlus} /> Add New Task
+    <>
+      {isSignedIn && (
+        <TaskStyled theme={theme}>
+          {modalOpen && <Modal content={<CreateContent />} />}
+
+          <h1>{title}</h1>
+          <div className="tasks grid">
+            {tasks &&
+              tasks.map((task) => <TaskItem key={task.id} task={task} />)}
+            <button
+              className="create-task"
+              onClick={() => dispatch(openModal())}
+            >
+              <FontAwesomeIcon icon={faPlus} /> Add New Task
+            </button>
           </div>
-        </div>
-      ) : (
-        <p>No tasks available.</p>
+        </TaskStyled>
       )}
-    </TaskStyled>
+    </>
   );
 };
 
