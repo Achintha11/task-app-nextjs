@@ -4,16 +4,17 @@ import {
   configureStore,
 } from "@reduxjs/toolkit";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 // Async Thunk to get all tasks
 export const getAllTasks = createAsyncThunk("tasks/getAllTasks", async () => {
   try {
     const response = await axios.get("/api/tasks");
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.log(error);
-    throw error; // Ensure the error is thrown so it can be caught by the thunk's rejected action
+    toast.error("Failed to fetch tasks"); // Add this line
+    throw error;
   }
 });
 
@@ -23,8 +24,10 @@ export const deleteTask = createAsyncThunk(
     try {
       await axios.delete(`/api/tasks/${id}`);
       dispatch(getAllTasks());
+      toast.success("Task deleted successfully"); // Add this line
     } catch (error) {
       console.log(error);
+      toast.error("Failed to delete task"); // Add this line
       throw error;
     }
   }
@@ -36,8 +39,10 @@ export const updateTask = createAsyncThunk(
     try {
       await axios.put("/api/tasks", { isCompleted, id });
       dispatch(getAllTasks());
+      toast.success("Task updated successfully"); // Add this line
     } catch (error) {
       console.log(error);
+      toast.error("Failed to update task"); // Add this line
     }
   }
 );
@@ -48,8 +53,10 @@ export const addTask = createAsyncThunk(
     try {
       const response = await axios.post("/api/tasks", task);
       dispatch(getAllTasks());
+      toast.success("Task added successfully"); // Add this line
     } catch (error) {
       console.log(error);
+      toast.error("Failed to add task"); // Add this line
     }
   }
 );
@@ -75,6 +82,7 @@ const taskSlice = createSlice({
       .addCase(getAllTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+        toast.error("Failed to fetch tasks"); // Add this line
       });
   },
 });
