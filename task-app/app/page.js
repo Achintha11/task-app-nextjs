@@ -9,6 +9,10 @@ export default function Home() {
   const { loading, tasks } = useSelector((store) => store.tasks);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(getAllTasks());
+  }, [dispatch]);
+
   // if (loading) {
   //   return (
   //     <main

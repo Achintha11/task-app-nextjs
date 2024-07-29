@@ -14,6 +14,7 @@ import {
 } from "@clerk/nextjs";
 import NextTopLoader from "nextjs-toploader";
 import { useUser } from "@clerk/clerk-react";
+import { Toaster } from "react-hot-toast";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -29,6 +30,8 @@ export default function RootLayout({ children }) {
           />
           <header></header>
           <Provider store={store}>
+            <Toaster />
+
             <MainContent>{children}</MainContent>
           </Provider>
         </body>
