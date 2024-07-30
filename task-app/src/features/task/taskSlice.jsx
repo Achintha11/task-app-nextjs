@@ -23,8 +23,8 @@ export const deleteTask = createAsyncThunk(
   async (id, { dispatch }) => {
     try {
       await axios.delete(`/api/tasks/${id}`);
-      dispatch(getAllTasks());
       toast.success("Task deleted successfully"); // Add this line
+      dispatch(getAllTasks());
     } catch (error) {
       console.log(error);
       toast.error("Failed to delete task"); // Add this line
@@ -38,8 +38,8 @@ export const updateTask = createAsyncThunk(
   async ({ id, isCompleted }, { dispatch }) => {
     try {
       await axios.put("/api/tasks", { isCompleted, id });
-      dispatch(getAllTasks());
       toast.success("Task updated successfully"); // Add this line
+      dispatch(getAllTasks());
     } catch (error) {
       console.log(error);
       toast.error("Failed to update task"); // Add this line
@@ -52,8 +52,8 @@ export const addTask = createAsyncThunk(
   async ({ task }, { dispatch }) => {
     try {
       const response = await axios.post("/api/tasks", task);
-      dispatch(getAllTasks());
       toast.success("Task added successfully"); // Add this line
+      dispatch(getAllTasks());
     } catch (error) {
       console.log(error);
       toast.error("Failed to add task"); // Add this line

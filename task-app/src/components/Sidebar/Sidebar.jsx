@@ -51,7 +51,7 @@ const menu = [
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = React.memo(() => {
   const { theme } = useSelector((store) => store.theme);
   const { collapsed } = useSelector((store) => store.navbar);
 
@@ -62,6 +62,8 @@ const Sidebar = () => {
 
   const { firstName, lastName, imageUrl } = user;
   const dispatch = useDispatch();
+
+  console.log("Rendering Sidebar");
 
   return (
     <>
@@ -126,7 +128,7 @@ const Sidebar = () => {
       )}
     </>
   );
-};
+});
 
 const SidebarStyled = styled.nav`
   position: relative;
