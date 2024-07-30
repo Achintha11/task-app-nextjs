@@ -11,11 +11,13 @@ import CreateContent from "../Modals/CreateContent";
 import Modal from "./Modal";
 import { openModal } from "@/src/features/modal/modalSlice";
 
-const Tasks = ({ title, tasks }) => {
+const Tasks = React.memo(({ tasks, title }) => {
   const { theme } = useSelector((store) => store.theme);
   const { modalOpen } = useSelector((store) => store.modal);
   const dispatch = useDispatch();
   const { isSignedIn } = useUser();
+
+  console.log("Rendering Tasks Component");
 
   return (
     <>
@@ -38,7 +40,7 @@ const Tasks = ({ title, tasks }) => {
       )}
     </>
   );
-};
+});
 
 const TaskStyled = styled.main`
   position: relative;
